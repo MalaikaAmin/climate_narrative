@@ -48,6 +48,8 @@ load_secrets <- function(secrets_file = "secret.yml") {
   } else {
     global$dev <- TRUE
     global$progress_bar <- FALSE
+    global$enable_editor <- TRUE
+    global$report_sleep <- 0
   }
   return(invisible(NULL))
 }
@@ -104,7 +106,12 @@ initialise_globals <- function() {
   # future plan definition required for async report production
   # forking should work faster and avoid potential export problems, but is not available on windows
   if (.Platform$OS.type == "windows") {
-    future::plan(future::multisession)
+    if (global$dev) {
+      future::plan(future::sequential)
+    }
+    else {
+      future::plan(future::multisession)
+    }
   } else {
     future::plan(future::multicore)
   }
